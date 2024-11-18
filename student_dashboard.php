@@ -133,7 +133,7 @@ try {
                 <div class="container-fluid">
                     <div class="row mb-4">
                         <div class="col">
-                            <h2>Welcome back, <?php echo htmlspecialchars($user_name); ?>! 👋</h2>
+                            <h2>Welcome back, <?php echo htmlspecialchars($username); ?>! 👋</h2>
                             <p class="text-muted">Here's what's happening with your learning journey.</p>
                         </div>
                     </div>

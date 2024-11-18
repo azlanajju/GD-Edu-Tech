@@ -2,10 +2,10 @@
 session_start();
 
 // Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header('Location: login.php');
+//     exit();
+// }
 
 // Get user details from session
 $user_name = $_SESSION['first_name'] ?? 'Student';
