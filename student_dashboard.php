@@ -102,7 +102,7 @@ $user_name = $_SESSION['first_name'] ?? 'Student';
                             </a>
                         </li>
                         <li class="w-100 mt-auto">
-                            <a href="logout.php" class="nav-link text-danger">
+                            <a href="lo.php" class="nav-link text-danger">
                                 <i class="bi bi-box-arrow-right me-2"></i> Logout
                             </a>
                         </li>
@@ -182,7 +182,7 @@ $user_name = $_SESSION['first_name'] ?? 'Student';
                                         </div>
                                         <div class="col-md-6">
                                             <div class="d-flex align-items-center mb-3">
-                                                <img src="/api/placeholder/80/80" class="rounded me-3" alt="Course">
+                                                <img src="" class="rounded me-3" alt="Course">
                                                 <div>
                                                     <h6 class="mb-1">Python Programming</h6>
                                                     <p class="text-muted mb-0">45% Complete</p>
@@ -205,7 +205,7 @@ $user_name = $_SESSION['first_name'] ?? 'Student';
                         </div>
                         <div class="col-md-4">
                             <div class="card course-card">
-                                <img src="/api/placeholder/400/200" class="card-img-top" alt="Course">
+                                <img src="./assets/images/javascript-course-thumbnail-1024x1024.jpg" class="card-img-top" alt="Course">
                                 <div class="card-body">
                                     <span class="badge bg-primary mb-2">Programming</span>
                                     <h5 class="card-title">JavaScript Mastery</h5>
@@ -219,7 +219,7 @@ $user_name = $_SESSION['first_name'] ?? 'Student';
                         </div>
                         <div class="col-md-4">
                             <div class="card course-card">
-                                <img src="/api/placeholder/400/200" class="card-img-top" alt="Course">
+                                <img src="./assets/images/Uiux.webp" class="card-img-top" alt="Course">
                                 <div class="card-body">
                                     <span class="badge bg-success mb-2">Design</span>
                                     <h5 class="card-title">UI/UX Design Basics</h5>
@@ -233,7 +233,7 @@ $user_name = $_SESSION['first_name'] ?? 'Student';
                         </div>
                         <div class="col-md-4">
                             <div class="card course-card">
-                                <img src="/api/placeholder/400/200" class="card-img-top" alt="Course">
+                                <img src="./assets/images/ds.webp" class="card-img-top" alt="Course">
                                 <div class="card-body">
                                     <span class="badge bg-warning mb-2">Data Science</span>
                                     <h5 class="card-title">Data Analysis with Python</h5>
