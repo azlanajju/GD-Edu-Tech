@@ -1,6 +1,5 @@
 SET time_zone = "+05:30";
 
-
 CREATE TABLE Users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(100) NOT NULL UNIQUE,
@@ -16,7 +15,6 @@ CREATE TABLE Users (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE Categories (
     category_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL UNIQUE,
@@ -24,7 +22,6 @@ CREATE TABLE Categories (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
 
 CREATE TABLE Courses (
     course_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -37,14 +34,13 @@ CREATE TABLE Courses (
     created_by INT NOT NULL,
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
     category_id INT,
-    course_type VARCHAR(50),
+    course_type VARCHAR(50),  -- Added to categorize the course type
     status ENUM('published', 'draft') DEFAULT 'published',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (created_by) REFERENCES Users(user_id),
     FOREIGN KEY (category_id) REFERENCES Categories(category_id)
 );
-
 
 CREATE TABLE Lessons (
     lesson_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -58,14 +54,13 @@ CREATE TABLE Lessons (
     FOREIGN KEY (course_id) REFERENCES Courses(course_id)
 );
 
-
 CREATE TABLE Enrollments (
     enrollment_id INT PRIMARY KEY AUTO_INCREMENT,
     student_id INT NOT NULL,
     course_id INT NOT NULL,
     purchase_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     payment_status ENUM('completed', 'pending', 'failed') DEFAULT 'completed',
-    progress DECIMAL(5, 2) DEFAULT 0.00 CHECK (progress >= 0 AND progress <= 100), 
+    progress DECIMAL(5, 2) DEFAULT 0.00 CHECK (progress >= 0 AND progress <= 100),
     access_status ENUM('active', 'expired', 'canceled') DEFAULT 'active',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -159,13 +154,27 @@ CREATE TABLE Notifications (
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
+
 CREATE TABLE Logs (
     log_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     action_type VARCHAR(100) NOT NULL,
     description TEXT,
-    ip_address VARCHAR(45),  -- Supports both IPv4 and IPv6 addresses
-    user_agent TEXT,         -- Stores browser/user agent information
+    ip_address VARCHAR(45),
+    user_agent TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+CREATE TABLE Videos (
+    video_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_id INT NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    video_url VARCHAR(255) NOT NULL,
+    duration TIME,  -- Duration of the video (HH:MM:SS)
+    video_order INT NOT NULL,  -- Order of the video in the course
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id)
 );
