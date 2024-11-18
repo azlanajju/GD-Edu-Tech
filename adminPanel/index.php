@@ -19,47 +19,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
     <title>Admin Dashboard - GD Edu Tech</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        .sidebar {
-            background: #1a237e;
-            min-height: 100vh;
-            color: white;
-        }
-        .nav-link {
-            color: rgba(255, 255, 255, 0.85);
-            padding: 0.8rem 1rem;
-            margin: 0.2rem 0;
-            border-radius: 0.5rem;
-        }
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-        }
-        .nav-link.active {
-            background: #283593;
-            color: white;
-        }
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-        .stats-card {
-            background: linear-gradient(45deg, #3949ab, #283593);
-            color: white;
-        }
-        .table-card {
-            overflow: hidden;
-        }
-        .action-icon {
-            cursor: pointer;
-            padding: 5px;
-            font-size: 1.1rem;
-        }
-        .action-icon:hover {
-            color: #3949ab;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <div class="container-fluid">
@@ -102,7 +62,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                             </a>
                         </li>
                         <li class="w-100">
-                            <a href="users.php" class="nav-link">
+                            <a href="./Users/users.php" class="nav-link">
                                 <i class="bi bi-people me-2"></i> Users
                             </a>
                         </li>
