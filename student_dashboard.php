@@ -94,7 +94,7 @@ try {
                             </a>
                         </li>
                         <li class="w-100">
-                            <a href="#" class="nav-link">
+                            <a href="./course_details.php" class="nav-link">
                                 <i class="bi bi-book me-2"></i> My Courses
                             </a>
                         </li>
