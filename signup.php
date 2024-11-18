@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $first_name = trim($_POST['first_name']);
     $last_name = trim($_POST['last_name']);
     $profile_image = $_FILES['profile_image'];
+    $registration_success = false;
 
     // Check for duplicate username or email
     $checkStmt = $conn->prepare("SELECT user_id FROM Users WHERE username = ? OR email = ?");
@@ -17,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $result = $checkStmt->get_result();
 
     if ($result->num_rows > 0) {
-        echo "<div class='alert alert-danger text-center'>Username or Email already exists. Please try another.</div>";
+        $_SESSION['error_message'] = "Username or Email already exists. Please try another.";
         $checkStmt->close();
     } else {
         $checkStmt->close();
@@ -33,7 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Move the uploaded file
             if (!move_uploaded_file($profile_image['tmp_name'], $profile_image_path)) {
-                die("<div class='alert alert-danger text-center'>Error uploading profile image.</div>");
+                $_SESSION['error_message'] = "Error uploading profile image.";
+                header('Location: signup.php');
+                exit();
             }
         }
 
@@ -47,16 +50,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("ssssssss", $username, $password_hash, $email, $first_name, $last_name, $profile_image_name, $role, $status);
 
         if ($stmt->execute()) {
-            echo "<div class='alert alert-success text-center'>Registration successful!</div>";
+            $_SESSION['success_message'] = "Registration successful! Please login.";
+            $registration_success = true;
         } else {
-            echo "<div class='alert alert-danger text-center'>Error: " . $stmt->error . "</div>";
+            $_SESSION['error_message'] = "Error: " . $stmt->error;
         }
 
         $stmt->close();
     }
-}
 
-$conn->close();
+    $conn->close();
+
+    // Redirect after processing
+    if ($registration_success) {
+        header('Location: login.php');
+        exit();
+    } else {
+        header('Location: signup.php');
+        exit();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -71,6 +84,12 @@ $conn->close();
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
+                <?php
+                if (isset($_SESSION['error_message'])) {
+                    echo "<div class='alert alert-danger text-center'>" . htmlspecialchars($_SESSION['error_message']) . "</div>";
+                    unset($_SESSION['error_message']);
+                }
+                ?>
                 <div class="card shadow">
                     <div class="card-header text-center">
                         <h2>Sign Up</h2>
