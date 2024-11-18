@@ -7,7 +7,7 @@ require_once '../config.php';
 // Handle user deletion
 if (isset($_GET['delete']) && isset($_GET['id'])) {
     $user_id = intval($_GET['id']);
-    
+
     $query = "DELETE FROM Users WHERE user_id = $user_id";
     if (mysqli_query($conn, $query)) {
         $_SESSION['message'] = "User deleted successfully.";
@@ -16,7 +16,7 @@ if (isset($_GET['delete']) && isset($_GET['id'])) {
         $_SESSION['message'] = "Error deleting user: " . mysqli_error($conn);
         $_SESSION['message_type'] = "danger";
     }
-    
+
     header("Location: users.php");
     exit();
 }
@@ -42,6 +42,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,6 +51,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -122,83 +124,84 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
 
                     <!-- Alert Messages -->
                     <?php if (isset($_SESSION['message'])): ?>
-                    <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
-                        <?php 
-                        echo htmlspecialchars($_SESSION['message']); 
-                        unset($_SESSION['message']);
-                        unset($_SESSION['message_type']);
-                        ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                        <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
+                            <?php
+                            echo htmlspecialchars($_SESSION['message']);
+                            unset($_SESSION['message']);
+                            unset($_SESSION['message_type']);
+                            ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     <?php endif; ?>
 
                     <!-- Users Table -->
-                    <div class="card">
-                        <div class="card-body">
+                    <!-- Replace the existing table section with this code -->
+                    <div class="card shadow-sm">
+                        <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
+                                <table class="table table-hover mb-0">
+                                    <thead class="bg-primary text-white">
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Username</th>
-                                            <th>Email</th>
-                                            <th>First Name</th>
-                                            <th>Last Name</th>
-                                            <th>Role</th>
-                                            <th>Status</th>
-                                            <th>Date Joined</th>
-                                            <th>Actions</th>
+                                            <th class="py-3 px-4 fw-bold">ID</th>
+                                            <th class="py-3 px-4 fw-bold">Username</th>
+                                            <th class="py-3 px-4 fw-bold">Email</th>
+                                            <th class="py-3 px-4 fw-bold">First Name</th>
+                                            <th class="py-3 px-4 fw-bold">Last Name</th>
+                                            <th class="py-3 px-4 fw-bold">Role</th>
+                                            <th class="py-3 px-4 fw-bold">Status</th>
+                                            <th class="py-3 px-4 fw-bold">Date Joined</th>
+                                            <th class="py-3 px-4 fw-bold text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php while ($user = mysqli_fetch_assoc($result)): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($user['user_id']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['first_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['last_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['role']); ?></td>
-                                            <td>
-                                                <span class="badge 
-                                                <?php 
-                                                echo $user['status'] == 'active' ? 'bg-success' : 
-                                                     ($user['status'] == 'inactive' ? 'bg-warning' : 'bg-danger'); 
-                                                ?>">
-                                                    <?php echo htmlspecialchars($user['status']); ?>
-                                                </span>
-                                            </td>
-                                            <td><?php echo date('Y-m-d', strtotime($user['date_joined'])); ?></td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="edit_user.php?id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-primary">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <a href="users.php?delete=1&id=<?php echo $user['user_id']; ?>" 
-                                                       class="btn btn-sm btn-outline-danger"
-                                                       onclick="return confirm('Are you sure you want to delete this user?');">
-                                                        <i class="bi bi-trash"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                            <tr class="align-middle">
+                                                <td class="px-4"><?php echo htmlspecialchars($user['user_id']); ?></td>
+                                                <td class="px-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="rounded-circle bg-primary text-white me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                            <?php echo strtoupper(substr($user['username'], 0, 1)); ?>
+                                                        </div>
+                                                        <?php echo htmlspecialchars($user['username']); ?>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4"><?php echo htmlspecialchars($user['email']); ?></td>
+                                                <td class="px-4"><?php echo htmlspecialchars($user['first_name']); ?></td>
+                                                <td class="px-4"><?php echo htmlspecialchars($user['last_name']); ?></td>
+                                                <td class="px-4">
+                                                    <span class="badge bg-secondary text-white">
+                                                        <?php echo htmlspecialchars($user['role']); ?>
+                                                    </span>
+                                                </td>
+                                                <td class="px-4">
+                                                    <span class="badge 
+                            <?php
+                                            echo $user['status'] == 'active' ? 'bg-success' : ($user['status'] == 'inactive' ? 'bg-warning' : 'bg-danger');
+                            ?> text-white">
+                                                        <?php echo htmlspecialchars($user['status']); ?>
+                                                    </span>
+                                                </td>
+                                                <td class="px-4"><?php echo date('Y-m-d', strtotime($user['date_joined'])); ?></td>
+                                                <td class="px-4 text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <a href="edit_user.php?id=<?php echo $user['user_id']; ?>"
+                                                            class="btn btn-sm btn-outline-primary rounded me-1"
+                                                            title="Edit User">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <a href="users.php?delete=1&id=<?php echo $user['user_id']; ?>"
+                                                            class="btn btn-sm btn-outline-danger rounded"
+                                                            onclick="return confirm('Are you sure you want to delete this user?');"
+                                                            title="Delete User">
+                                                            <i class="bi bi-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         <?php endwhile; ?>
                                     </tbody>
                                 </table>
                             </div>
-
-                            <!-- Pagination -->
-                            <nav aria-label="User list pagination">
-                                <ul class="pagination justify-content-center">
-                                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                        <li class="page-item <?php echo ($page == $i) ? 'active' : ''; ?>">
-                                            <a class="page-link" href="users.php?page=<?php echo $i; ?>">
-                                                <?php echo $i; ?>
-                                            </a>
-                                        </li>
-                                    <?php endfor; ?>
-                                </ul>
-                            </nav>
                         </div>
                     </div>
                 </div>
@@ -208,4 +211,5 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
