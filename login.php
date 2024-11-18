@@ -1,7 +1,14 @@
 <?php
 require_once 'config.php'; // Include database configuration
+require_once __DIR__ . '/vendor/autoload.php'; // Load Composer dependencies (including JWT)
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 session_start(); // Start a session for user authentication
+
+// Secret key for JWT
+$jwtSecretKey = "your_secret_key_here";
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -21,10 +28,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($user['status'] !== 'active') {
             echo "<div class='alert alert-warning text-center'>Your account is {$user['status']}. Please contact the administrator.</div>";
         } elseif (password_verify($password, $user['password_hash'])) {
-            // Password matches, set session variables
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['role'] = $user['role'];
+            // Password matches, create a JWT token
+            $payload = [
+                'iss' => 'http://localhost', // Issuer
+                'aud' => 'http://localhost', // Audience
+                'iat' => time(),            // Issued at
+                'exp' => time() + 3600,     // Expiration time (1 hour)
+                'user_id' => $user['user_id'],
+                'username' => $user['username'],
+                'role' => $user['role']
+            ];
+
+            $jwt = JWT::encode($payload, $jwtSecretKey, 'HS256');
+
+            // Store JWT in a cookie
+            setcookie("auth_token", $jwt, time() + 3600, "/", "", false, true);
 
             // Redirect based on user role
             if ($user['role'] === 'admin') {
@@ -47,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $conn->close();
 ?>
+
 
 <!-- HTML Login Form -->
 <!DOCTYPE html>
