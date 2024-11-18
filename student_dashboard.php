@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 require_once __DIR__ . '/vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -20,8 +19,6 @@ try {
     $username = $decoded->username;
     $role = $decoded->role;
 
-    // Show dashboard content
-    echo "Welcome, $username! You are logged in as $role.";
 
 } catch (Exception $e) {
     echo "Unauthorized: " . $e->getMessage();
@@ -30,22 +27,6 @@ try {
 }
 ?>
 
-<!-- Logout Button Form -->
-<form action="logout.php" method="POST">
-    <button type="submit">Logout</button>
-</form>
-=======
-session_start();
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
-// Get user details from session
-$user_name = $_SESSION['first_name'] ?? 'Student';
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -138,7 +119,7 @@ $user_name = $_SESSION['first_name'] ?? 'Student';
                             </a>
                         </li>
                         <li class="w-100 mt-auto">
-                            <a href="lo.php" class="nav-link text-danger">
+                            <a href="logout.php" class="nav-link text-danger">
                                 <i class="bi bi-box-arrow-right me-2"></i> Logout
                             </a>
                         </li>
@@ -290,4 +271,4 @@ $user_name = $_SESSION['first_name'] ?? 'Student';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
->>>>>>> 507b0dec9a9da0e0b769b0ba50af2fd985088d23
+

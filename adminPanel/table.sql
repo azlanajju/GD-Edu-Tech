@@ -178,3 +178,12 @@ CREATE TABLE Videos (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES Courses(course_id)
 );
+
+
+CREATE TABLE password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expiry INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
