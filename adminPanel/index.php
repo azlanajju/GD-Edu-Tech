@@ -13,6 +13,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +22,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="./css/style.css">
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -28,7 +30,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
             <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar">
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 min-vh-100">
                     <a href="#" class="d-flex align-items-center pb-3 mb-md-1 mt-md-3 me-md-auto text-white text-decoration-none">
-                        <span class="fs-5 fw-bolder">GD Edu Tech</span>
+                        <span class="fs-5 fw-bolder" style="display: flex;align-items:center;color:black;"><img height="35px" src="./images/edutechLogo.png" alt="">&nbsp; GD Edu Tech</span>
                     </a>
                     <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start w-100" id="menu">
                         <li class="w-100">
@@ -37,13 +39,13 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                             </a>
                         </li>
                         <li class="w-100">
-                            <a href="categories.php" class="nav-link">
+                            <a href="./Categories/categories.php" class="nav-link">
                                 <i class="bi bi-grid me-2"></i> Categories
                             </a>
                         </li>
                         <li class="w-100">
                             <a href="courses.php" class="nav-link">
-                                <i class="bi bi-book me-2"></i> Courses
+                                <i class="bi bi-book me-2 "></i> Courses
                             </a>
                         </li>
                         <li class="w-100">
@@ -82,29 +84,116 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                     <div class="row mb-4">
                         <div class="col">
                             <h2>Welcome, <?php echo htmlspecialchars($admin_name); ?>!</h2>
-                            <p class="text-muted">Here's what's happening with your platform today.</p>
+                            <p class="text-muted ">Here's what's happening with your platform today.</p>
                         </div>
                     </div>
 
                     <!-- Statistics Cards -->
                     <div class="row g-4 mb-4">
                         <div class="col-md-3">
-                            <div class="card stats-card">
-                                <div class="card-body">
-                                    <h6 class="card-title">Total Users</h6>
-                                    <h2>2,543</h2>
-                                    <p class="mb-0"><i class="bi bi-arrow-up"></i> 12% this month</p>
-                                </div>
-                            </div>
+                        <?php
+// Include the database configuration file
+require_once 'config.php';
+
+// Query to fetch the total number of users and new users for the current month
+$totalUsersQuery = "
+    SELECT 
+        COUNT(*) AS total_users,
+        SUM(CASE WHEN MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE()) THEN 1 ELSE 0 END) AS new_users_this_month
+    FROM Users
+";
+
+$totalUsersResult = mysqli_query($conn, $totalUsersQuery);
+
+// Check for query errors
+if (!$totalUsersResult) {
+    die("Database query failed: " . mysqli_error($conn));
+}
+
+$data = mysqli_fetch_assoc($totalUsersResult);
+$totalUsers = $data['total_users'];
+$newUsersThisMonth = $data['new_users_this_month'];
+
+// Calculate percentage increase dynamically
+$previousMonthUsersQuery = "
+    SELECT COUNT(*) AS previous_month_users
+    FROM Users
+    WHERE MONTH(created_at) = MONTH(CURDATE()) - 1 AND YEAR(created_at) = YEAR(CURDATE())
+";
+
+$previousMonthResult = mysqli_query($conn, $previousMonthUsersQuery);
+if (!$previousMonthResult) {
+    die("Database query failed: " . mysqli_error($conn));
+}
+
+$previousMonthUsers = mysqli_fetch_assoc($previousMonthResult)['previous_month_users'];
+$percentageIncrease = $previousMonthUsers > 0 
+    ? round(($newUsersThisMonth / $previousMonthUsers) * 100) 
+    : 0;
+
+?>
+
+<div class="card stats-card">
+    <div class="card-body">
+        <h6 class="card-title">Total Users</h6>
+        <h2><?php echo number_format($totalUsers); ?></h2>
+        <p class="mb-0">
+            <i class="bi bi-arrow-up"></i> <?php echo $percentageIncrease; ?>% this month
+        </p>
+    </div>
+</div>
+
+<?php
+// Free result sets and close the connection
+mysqli_free_result($totalUsersResult);
+mysqli_free_result($previousMonthResult);
+// mysqli_close($conn);
+?>
+
+
                         </div>
                         <div class="col-md-3">
+                            <?php
+                            // Include the database configuration file
+                            require_once 'config.php';
+
+                            // Query to fetch total active courses and new courses added in the last 7 days
+                            $activeCoursesQuery = "
+    SELECT 
+        COUNT(*) AS active_courses,
+        SUM(CASE WHEN DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS new_courses
+    FROM Courses
+    WHERE status = 'published'
+";
+
+                            $activeCoursesResult = mysqli_query($conn, $activeCoursesQuery);
+
+                            // Check for query errors
+                            if (!$activeCoursesResult) {
+                                die("Database query failed: " . mysqli_error($conn));
+                            }
+
+                            $data = mysqli_fetch_assoc($activeCoursesResult);
+                            $activeCourses = $data['active_courses'];
+                            $newCoursesThisWeek = $data['new_courses'];
+                            ?>
+
                             <div class="card stats-card">
                                 <div class="card-body">
                                     <h6 class="card-title">Active Courses</h6>
-                                    <h2>48</h2>
-                                    <p class="mb-0"><i class="bi bi-arrow-up"></i> 3 new this week</p>
+                                    <h2><?php echo number_format($activeCourses); ?></h2>
+                                    <p class="mb-0">
+                                        <i class="bi bi-arrow-up"></i> <?php echo $newCoursesThisWeek; ?> new this week
+                                    </p>
                                 </div>
                             </div>
+
+                            <?php
+                            // Free result set and close the connection
+                            mysqli_free_result($activeCoursesResult);
+                            // mysqli_close($conn);
+                            ?>
+
                         </div>
                         <div class="col-md-3">
                             <div class="card stats-card">
@@ -132,8 +221,26 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                         <div class="col-md-8">
                             <div class="card table-card">
                                 <div class="card-header bg-white">
-                                    <h5 class="card-title mb-0">Recent Activities</h5>
+                                    <h5 class="card-title mb-0 color-primary">Recent Activities</h5>
                                 </div>
+                                <?php
+                                // config.php (Database Connection)
+                                require_once 'config.php';
+
+                                // Retrieve latest 8 activities
+                                $query = "SELECT 
+            user_name, 
+            activity_type, 
+            activity_description, 
+            activity_status, 
+            activity_timestamp 
+          FROM recent_activities 
+          ORDER BY activity_timestamp DESC 
+          LIMIT 8";
+
+                                $result = $conn->query($query);
+                                ?>
+
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
@@ -145,27 +252,28 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>John Doe</td>
-                                                <td>Enrolled in Web Development</td>
-                                                <td>Today, 10:30 AM</td>
-                                                <td><span class="badge bg-success">Completed</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Jane Smith</td>
-                                                <td>Submitted Assignment</td>
-                                                <td>Today, 09:15 AM</td>
-                                                <td><span class="badge bg-warning">Pending</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Mike Johnson</td>
-                                                <td>Completed Python Course</td>
-                                                <td>Yesterday</td>
-                                                <td><span class="badge bg-info">Verified</span></td>
-                                            </tr>
+                                            <?php if ($result->num_rows === 0): ?>
+                                                <tr>
+                                                    <td colspan="4" class="text-center">No recent activities found.</td>
+                                                </tr>
+                                            <?php else: ?>
+                                                <?php while ($activity = $result->fetch_assoc()): ?>
+                                                    <tr>
+                                                        <td><?php echo $activity['user_name']; ?></td>
+                                                        <td><?php echo $activity['activity_description']; ?></td>
+                                                        <td><?php echo $activity['activity_timestamp']; ?></td>
+                                                        <td><?php echo $activity['activity_status']; ?></td>
+                                                    </tr>
+                                                <?php endwhile; ?>
+                                            <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
+
+                                <?php
+                                // Close the connection
+                                // $conn->close();
+                                ?>
                             </div>
                         </div>
 
@@ -226,8 +334,22 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                             <div class="card">
                                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                                     <h5 class="card-title mb-0">Recent Users</h5>
-                                    <button class="btn btn-sm btn-outline-primary">View All</button>
+                                    <a href="./Users/users.php" class="btn btn-sm btn-outline-primary">View All</a>
                                 </div>
+                                <?php
+                                // Include the database configuration file
+                                require_once 'config.php';
+
+                                // Fetch the 10 most recent users
+                                $query = "SELECT username, role FROM Users ORDER BY date_joined DESC LIMIT 10";
+                                $result = mysqli_query($conn, $query);
+
+                                // Check for query errors
+                                if (!$result) {
+                                    die("Database query failed: " . mysqli_error($conn));
+                                }
+                                ?>
+
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
@@ -238,25 +360,28 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>Sarah Wilson</td>
-                                                <td>Student</td>
-                                                <td>
-                                                    <i class="bi bi-pencil action-icon"></i>
-                                                    <i class="bi bi-trash action-icon text-danger"></i>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Mark Davis</td>
-                                                <td>Instructor</td>
-                                                <td>
-                                                    <i class="bi bi-pencil action-icon"></i>
-                                                    <i class="bi bi-trash action-icon text-danger"></i>
-                                                </td>
-                                            </tr>
+                                            <?php
+                                            // Loop through the users and display them
+                                            while ($row = mysqli_fetch_assoc($result)) { ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($row['username']); ?></td>
+                                                    <td><?php echo ucfirst(htmlspecialchars($row['role'])); ?></td>
+                                                    <td>
+                                                        <i class="bi bi-pencil action-icon"></i>
+                                                        <i class="bi bi-trash action-icon text-danger"></i>
+                                                    </td>
+                                                </tr>
+                                            <?php } ?>
                                         </tbody>
                                     </table>
                                 </div>
+
+                                <?php
+                                // Free result set and close the connection
+                                mysqli_free_result($result);
+                                // mysqli_close($conn);
+                                ?>
+
                             </div>
                         </div>
 
@@ -267,6 +392,20 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                                     <h5 class="card-title mb-0">Popular Courses</h5>
                                     <button class="btn btn-sm btn-outline-primary">View All</button>
                                 </div>
+                                <?php
+                                // Include the database configuration file
+                                require_once 'config.php';
+
+                                // Fetch only popular courses
+                                $query = "SELECT title FROM Courses WHERE isPopular = 'yes'";
+                                $result = mysqli_query($conn, $query);
+
+                                // Check for query errors
+                                if (!$result) {
+                                    die("Database query failed: " . mysqli_error($conn));
+                                }
+                                ?>
+
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
@@ -277,23 +416,27 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>Web Development</td>
-                                                <td>234</td>
-                                                <td>
-                                                    <i class="bi bi-star-fill text-warning"></i> 4.8
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Python Programming</td>
-                                                <td>186</td>
-                                                <td>
-                                                    <i class="bi bi-star-fill text-warning"></i> 4.6
-                                                </td>
-                                            </tr>
+                                            <?php
+                                            // Loop through the courses and display them
+                                            while ($row = mysqli_fetch_assoc($result)) { ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($row['title']); ?></td>
+                                                    <td>Dummy Students</td>
+                                                    <td>
+                                                        <i class="bi bi-star-fill text-warning"></i> Dummy Rating
+                                                    </td>
+                                                </tr>
+                                            <?php } ?>
                                         </tbody>
                                     </table>
                                 </div>
+
+                                <?php
+                                // Free result set and close the connection
+                                mysqli_free_result($result);
+                                mysqli_close($conn);
+                                ?>
+
                             </div>
                         </div>
                     </div>
@@ -304,4 +447,5 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

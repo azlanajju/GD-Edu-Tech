@@ -34,24 +34,39 @@ CREATE TABLE Courses (
     created_by INT NOT NULL,
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
     category_id INT,
-    course_type VARCHAR(50),  -- Added to categorize the course type
+    course_type VARCHAR(50),
     status ENUM('published', 'draft') DEFAULT 'published',
+    isPopular VARCHAR(50),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (created_by) REFERENCES Users(user_id),
     FOREIGN KEY (category_id) REFERENCES Categories(category_id)
 );
 
+
 CREATE TABLE Lessons (
     lesson_id INT PRIMARY KEY AUTO_INCREMENT,
     course_id INT NOT NULL,
     title VARCHAR(150) NOT NULL,
-    content_url VARCHAR(255),
-    duration TIME,
-    lesson_order INT NOT NULL,
+    description TEXT,
+    lesson_order INT NOT NULL,  -- Order of the lesson within the course
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES Courses(course_id)
+);
+
+
+CREATE TABLE Videos (
+    video_id INT PRIMARY KEY AUTO_INCREMENT,
+    lesson_id INT NOT NULL,     -- Reference to the Lesson
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    video_url VARCHAR(255) NOT NULL,
+    duration TIME,              -- Duration of the video (HH:MM:SS)
+    video_order INT NOT NULL,   -- Order of the video within the lesson
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (lesson_id) REFERENCES Lessons(lesson_id)
 );
 
 CREATE TABLE Enrollments (
@@ -166,18 +181,7 @@ CREATE TABLE Logs (
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
-CREATE TABLE Videos (
-    video_id INT PRIMARY KEY AUTO_INCREMENT,
-    course_id INT NOT NULL,
-    title VARCHAR(150) NOT NULL,
-    description TEXT,
-    video_url VARCHAR(255) NOT NULL,
-    duration TIME,  -- Duration of the video (HH:MM:SS)
-    video_order INT NOT NULL,  -- Order of the video in the course
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (course_id) REFERENCES Courses(course_id)
-);
+
 
 
 CREATE TABLE password_resets (
@@ -190,51 +194,22 @@ CREATE TABLE password_resets (
 
 
 
-                                        --   NEW   --
-
-
-CREATE TABLE Courses (
-    course_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(150) NOT NULL,
-    description TEXT,
-    thumbnail VARCHAR(255),
-    price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
-    language VARCHAR(50),
-    level ENUM('beginner', 'intermediate', 'advanced') NOT NULL,
-    created_by INT NOT NULL,
-    date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
-    category_id INT,
-    course_type VARCHAR(50),
-    status ENUM('published', 'draft') DEFAULT 'published',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES Users(user_id),
-    FOREIGN KEY (category_id) REFERENCES Categories(category_id)
+-- Create a table to track recent user activities
+CREATE TABLE recent_activities (
+    activity_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    user_name VARCHAR(50) NOT NULL,
+    activity_status VARCHAR(50) NOT NULL,
+    activity_type VARCHAR(50) NOT NULL,
+    activity_description TEXT,
+    activity_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    additional_details JSON,
+    
 );
 
 
-CREATE TABLE Lessons (
-    lesson_id INT PRIMARY KEY AUTO_INCREMENT,
-    course_id INT NOT NULL,
-    title VARCHAR(150) NOT NULL,
-    description TEXT,
-    lesson_order INT NOT NULL,  -- Order of the lesson within the course
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (course_id) REFERENCES Courses(course_id)
-);
 
 
-CREATE TABLE Videos (
-    video_id INT PRIMARY KEY AUTO_INCREMENT,
-    lesson_id INT NOT NULL,     -- Reference to the Lesson
-    title VARCHAR(150) NOT NULL,
-    description TEXT,
-    video_url VARCHAR(255) NOT NULL,
-    duration TIME,              -- Duration of the video (HH:MM:SS)
-    video_order INT NOT NULL,   -- Order of the video within the lesson
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (lesson_id) REFERENCES Lessons(lesson_id)
-);
+
+
 

@@ -4,20 +4,20 @@ session_start();
 // Database connection
 require_once '../config.php';
 
-// Handle user deletion
+// Handle category deletion
 if (isset($_GET['delete']) && isset($_GET['id'])) {
-    $user_id = intval($_GET['id']);
+    $category_id = intval($_GET['id']);
 
-    $query = "DELETE FROM Users WHERE user_id = $user_id";
+    $query = "DELETE FROM Categories WHERE category_id = $category_id";
     if (mysqli_query($conn, $query)) {
-        $_SESSION['message'] = "User deleted successfully.";
+        $_SESSION['message'] = "Category deleted successfully.";
         $_SESSION['message_type'] = "success";
     } else {
-        $_SESSION['message'] = "Error deleting user: " . mysqli_error($conn);
+        $_SESSION['message'] = "Error deleting category: " . mysqli_error($conn);
         $_SESSION['message_type'] = "danger";
     }
 
-    header("Location: users.php");
+    header("Location: categories.php");
     exit();
 }
 
@@ -26,14 +26,14 @@ $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// Fetch total number of users
-$total_users_query = mysqli_query($conn, "SELECT COUNT(*) as count FROM Users");
-$total_users_row = mysqli_fetch_assoc($total_users_query);
-$total_users = $total_users_row['count'];
-$total_pages = ceil($total_users / $limit);
+// Fetch total number of categories
+$total_categories_query = mysqli_query($conn, "SELECT COUNT(*) as count FROM Categories ");
+$total_categories_row = mysqli_fetch_assoc($total_categories_query);
+$total_categories = $total_categories_row['count'];
+$total_pages = ceil($total_categories / $limit);
 
-// Fetch users with pagination
-$query = "SELECT * FROM Users ORDER BY date_joined DESC LIMIT $limit OFFSET $offset";
+// Fetch categories with pagination
+$query = "SELECT * FROM Categories ORDER BY created_at ASC LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $query);
 
 // Get admin details from session
@@ -46,7 +46,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users Management - GD Edu Tech</title>
+    <title>Categories Management - GD Edu Tech</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../css/style.css">
@@ -59,7 +59,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
             <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar">
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 min-vh-100">
                     <a href="#" class="d-flex align-items-center pb-3 mb-md-1 mt-md-3 me-md-auto text-white text-decoration-none">
-                        <span class="fs-5 fw-bolder">GD Edu Tech</span>
+                    <span class="fs-5 fw-bolder" style="display: flex;align-items:center;color:black;"><img height="35px" src="../images/edutechLogo.png" alt="">&nbsp; GD Edu Tech</span>
                     </a>
                     <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start w-100" id="menu">
                         <li class="w-100">
@@ -68,7 +68,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                             </a>
                         </li>
                         <li class="w-100">
-                            <a href="categories.php" class="nav-link">
+                            <a href="categories.php" class="nav-link active">
                                 <i class="bi bi-grid me-2"></i> Categories
                             </a>
                         </li>
@@ -93,7 +93,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                             </a>
                         </li>
                         <li class="w-100">
-                            <a href="users.php" class="nav-link active">
+                            <a href="users.php" class="nav-link">
                                 <i class="bi bi-people me-2"></i> Users
                             </a>
                         </li>
@@ -112,12 +112,12 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                     <!-- Header -->
                     <div class="row mb-4">
                         <div class="col">
-                            <h2>User Management</h2>
-                            <p class="text-muted">Manage and monitor platform users</p>
+                            <h2>Category Management</h2>
+                            <p class="text-muted">Manage and organize course categories</p>
                         </div>
                         <div class="col-auto">
-                            <a href="add_user.php" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-2"></i>Add New User
+                            <a href="./insert_category.php" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Add New Category
                             </a>
                         </div>
                     </div>
@@ -134,8 +134,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                         </div>
                     <?php endif; ?>
 
-                    <!-- Users Table -->
-                    <!-- Replace the existing table section with this code -->
+                    <!-- Categories Table -->
                     <div class="card shadow-sm">
                         <div class="card-body p-0">
                             <div class="table-responsive">
@@ -143,56 +142,39 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                                     <thead class="bg-primary text-white">
                                         <tr>
                                             <th class="py-3 px-4 fw-bold">ID</th>
-                                            <th class="py-3 px-4 fw-bold">Username</th>
-                                            <th class="py-3 px-4 fw-bold">Email</th>
-                                            <th class="py-3 px-4 fw-bold">First Name</th>
-                                            <th class="py-3 px-4 fw-bold">Last Name</th>
-                                            <th class="py-3 px-4 fw-bold">Role</th>
-                                            <th class="py-3 px-4 fw-bold">Status</th>
-                                            <th class="py-3 px-4 fw-bold">Date Joined</th>
+                                            <th class="py-3 px-4 fw-bold">Name</th>
+                                            <th class="py-3 px-4 fw-bold">Description</th>
+                                            <th class="py-3 px-4 fw-bold">Created At</th>
+                                            <th class="py-3 px-4 fw-bold">Last Updated</th>
                                             <th class="py-3 px-4 fw-bold text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php while ($user = mysqli_fetch_assoc($result)): ?>
+                                        <?php while ($category = mysqli_fetch_assoc($result)): ?>
                                             <tr class="align-middle">
-                                                <td class="px-4"><?php echo htmlspecialchars($user['user_id']); ?></td>
+                                                <td class="px-4"><?php echo htmlspecialchars($category['category_id']); ?></td>
                                                 <td class="px-4">
                                                     <div class="d-flex align-items-center">
                                                         <div class="rounded-circle bg-primary text-white me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                            <?php echo strtoupper(substr($user['username'], 0, 1)); ?>
+                                                            <?php echo strtoupper(substr($category['name'], 0, 1)); ?>
                                                         </div>
-                                                        <?php echo htmlspecialchars($user['username']); ?>
+                                                        <?php echo htmlspecialchars($category['name']); ?>
                                                     </div>
                                                 </td>
-                                                <td class="px-4"><?php echo htmlspecialchars($user['email']); ?></td>
-                                                <td class="px-4"><?php echo htmlspecialchars($user['first_name']); ?></td>
-                                                <td class="px-4"><?php echo htmlspecialchars($user['last_name']); ?></td>
-                                                <td class="px-4">
-                                                    <span class="badge bg-secondary text-white">
-                                                        <?php echo htmlspecialchars($user['role']); ?>
-                                                    </span>
-                                                </td>
-                                                <td class="px-4">
-                                                    <span class="badge 
-                            <?php
-                                            echo $user['status'] == 'active' ? 'bg-success' : ($user['status'] == 'inactive' ? 'bg-warning' : 'bg-danger');
-                            ?> text-white">
-                                                        <?php echo htmlspecialchars($user['status']); ?>
-                                                    </span>
-                                                </td>
-                                                <td class="px-4"><?php echo date('Y-m-d', strtotime($user['date_joined'])); ?></td>
+                                                <td class="px-4"><?php echo htmlspecialchars(substr($category['description'], 0, 100)) . (strlen($category['description']) > 100 ? '...' : ''); ?></td>
+                                                <td class="px-4"><?php echo date('Y-m-d H:i', strtotime($category['created_at'])); ?></td>
+                                                <td class="px-4"><?php echo date('Y-m-d H:i', strtotime($category['updated_at'])); ?></td>
                                                 <td class="px-4 text-center">
                                                     <div class="btn-group" role="group">
-                                                        <a href="edit_user.php?php echo $user['user_id']; ?>"
+                                                        <a href="edit_category.php?id=<?php echo $category['category_id']; ?>"
                                                             class="btn btn-sm btn-outline-primary rounded me-1"
-                                                            title="Edit User">
+                                                            title="Edit Category">
                                                             <i class="bi bi-pencil"></i>
                                                         </a>
-                                                        <a href="users.php?delete=1&id=<?php echo $user['user_id']; ?>"
+                                                        <a href="categories.php?delete=1&id=<?php echo $category['category_id']; ?>"
                                                             class="btn btn-sm btn-outline-danger rounded"
-                                                            onclick="return confirm('Are you sure you want to delete this user?');"
-                                                            title="Delete User">
+                                                            onclick="return confirm('Are you sure you want to delete this category?');"
+                                                            title="Delete Category">
                                                             <i class="bi bi-trash"></i>
                                                         </a>
                                                     </div>
@@ -204,6 +186,19 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                             </div>
                         </div>
                     </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation" class="mt-3">
+                        <ul class="pagination justify-content-center">
+                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                    <a class="page-link" href="?page=<?php echo $i; ?>">
+                                        <?php echo $i; ?>
+                                    </a>
+                                </li>
+                            <?php endfor; ?>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
