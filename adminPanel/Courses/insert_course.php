@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $category_id = intval($_POST['category_id']);
     $course_type = mysqli_real_escape_string($conn, $_POST['course_type']);
     $isPopular = mysqli_real_escape_string($conn, $_POST['isPopular']);
-    
+
     // Image upload handling
     $thumbnail = null;
     if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] == 0) {
@@ -23,6 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $thumbnail_dir = './thumbnails/';
             $thumbnail_name = uniqid('course_', true) . '.' . $file_extension;
             $thumbnail_path = $thumbnail_dir . $thumbnail_name;
+
+            // Ensure the directory exists
+            if (!is_dir($thumbnail_dir)) {
+                mkdir($thumbnail_dir, 0777, true);
+            }
 
             // Move uploaded file to the designated directory
             if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $thumbnail_path)) {
@@ -190,15 +195,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <input type="text" class="form-control" id="course_type" name="course_type">
                         </div>
                         <div class="mb-3">
-                            <label for="isPopular" class="form-label">Is Popular</label>
-                            <select class="form-select" id="isPopular" name="isPopular" required>
+                            <label for="isPopular" class="form-label">Is Popular?</label>
+                            <select class="form-select" id="isPopular" name="isPopular">
                                 <option value="0">No</option>
                                 <option value="1">Yes</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="thumbnail" class="form-label">Course Thumbnail</label>
-                            <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*" required>
+                            <label for="thumbnail" class="form-label">Thumbnail</label>
+                            <input type="file" class="form-control" id="thumbnail" name="thumbnail">
                         </div>
                         <button type="submit" class="btn btn-primary">Add Course</button>
                     </form>
@@ -207,6 +212,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
