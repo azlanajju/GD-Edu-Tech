@@ -1,14 +1,38 @@
 <?php
-session_start();
+require_once __DIR__ . '/../vendor/autoload.php';
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
-// Check if user is logged in and is admin
-// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-//     header('Location: login.php');
-//     exit();
-// }
+$jwtSecretKey = "your_secret_key_here";
 
-// Get admin details from session
-$admin_name = $_SESSION['first_name'] ?? 'Admin';
+// Check if JWT token exists in cookies
+if (!isset($_COOKIE['auth_token'])) {
+    header("Location: admin_login.php");
+    exit();
+}
+
+try {
+    // Get JWT token from cookies
+    $jwt = $_COOKIE['auth_token'];
+    // Decode the JWT token
+    $decoded = JWT::decode($jwt, new Key($jwtSecretKey, 'HS256'));
+
+    // Access admin details from the decoded token
+    $admin_name = $decoded->first_name ?? 'Admin';
+    $user_role = $decoded->role;
+
+    // Ensure user is an admin
+    if ($user_role !== 'admin') {
+        header('Location: admin_login.php');
+        exit();
+    }
+
+} catch (Exception $e) {
+    // Handle any JWT decoding errors
+    echo "Unauthorized: " . $e->getMessage();
+    header("Location: admin_login.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -44,8 +68,8 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                             </a>
                         </li>
                         <li class="w-100">
-                            <a href="courses.php" class="nav-link">
-                                <i class="bi bi-book me-2 "></i> Courses
+                            <a href="./Courses/Courses.php" class="nav-link ">
+                                <i class="bi bi-book me-2"></i> Courses
                             </a>
                         </li>
                         <li class="w-100">
@@ -90,129 +114,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
 
                     <!-- Statistics Cards -->
                     <div class="row g-4 mb-4">
-                        <div class="col-md-3">
-                        <?php
-// Include the database configuration file
-require_once 'config.php';
-
-// Query to fetch the total number of users and new users for the current month
-$totalUsersQuery = "
-    SELECT 
-        COUNT(*) AS total_users,
-        SUM(CASE WHEN MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE()) THEN 1 ELSE 0 END) AS new_users_this_month
-    FROM Users
-";
-
-$totalUsersResult = mysqli_query($conn, $totalUsersQuery);
-
-// Check for query errors
-if (!$totalUsersResult) {
-    die("Database query failed: " . mysqli_error($conn));
-}
-
-$data = mysqli_fetch_assoc($totalUsersResult);
-$totalUsers = $data['total_users'];
-$newUsersThisMonth = $data['new_users_this_month'];
-
-// Calculate percentage increase dynamically
-$previousMonthUsersQuery = "
-    SELECT COUNT(*) AS previous_month_users
-    FROM Users
-    WHERE MONTH(created_at) = MONTH(CURDATE()) - 1 AND YEAR(created_at) = YEAR(CURDATE())
-";
-
-$previousMonthResult = mysqli_query($conn, $previousMonthUsersQuery);
-if (!$previousMonthResult) {
-    die("Database query failed: " . mysqli_error($conn));
-}
-
-$previousMonthUsers = mysqli_fetch_assoc($previousMonthResult)['previous_month_users'];
-$percentageIncrease = $previousMonthUsers > 0 
-    ? round(($newUsersThisMonth / $previousMonthUsers) * 100) 
-    : 0;
-
-?>
-
-<div class="card stats-card">
-    <div class="card-body">
-        <h6 class="card-title">Total Users</h6>
-        <h2><?php echo number_format($totalUsers); ?></h2>
-        <p class="mb-0">
-            <i class="bi bi-arrow-up"></i> <?php echo $percentageIncrease; ?>% this month
-        </p>
-    </div>
-</div>
-
-<?php
-// Free result sets and close the connection
-mysqli_free_result($totalUsersResult);
-mysqli_free_result($previousMonthResult);
-// mysqli_close($conn);
-?>
-
-
-                        </div>
-                        <div class="col-md-3">
-                            <?php
-                            // Include the database configuration file
-                            require_once 'config.php';
-
-                            // Query to fetch total active courses and new courses added in the last 7 days
-                            $activeCoursesQuery = "
-    SELECT 
-        COUNT(*) AS active_courses,
-        SUM(CASE WHEN DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS new_courses
-    FROM Courses
-    WHERE status = 'published'
-";
-
-                            $activeCoursesResult = mysqli_query($conn, $activeCoursesQuery);
-
-                            // Check for query errors
-                            if (!$activeCoursesResult) {
-                                die("Database query failed: " . mysqli_error($conn));
-                            }
-
-                            $data = mysqli_fetch_assoc($activeCoursesResult);
-                            $activeCourses = $data['active_courses'];
-                            $newCoursesThisWeek = $data['new_courses'];
-                            ?>
-
-                            <div class="card stats-card">
-                                <div class="card-body">
-                                    <h6 class="card-title">Active Courses</h6>
-                                    <h2><?php echo number_format($activeCourses); ?></h2>
-                                    <p class="mb-0">
-                                        <i class="bi bi-arrow-up"></i> <?php echo $newCoursesThisWeek; ?> new this week
-                                    </p>
-                                </div>
-                            </div>
-
-                            <?php
-                            // Free result set and close the connection
-                            mysqli_free_result($activeCoursesResult);
-                            // mysqli_close($conn);
-                            ?>
-
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stats-card">
-                                <div class="card-body">
-                                    <h6 class="card-title">Total Revenue</h6>
-                                    <h2>$12,845</h2>
-                                    <p class="mb-0"><i class="bi bi-arrow-up"></i> 8% this month</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stats-card">
-                                <div class="card-body">
-                                    <h6 class="card-title">Course Completion</h6>
-                                    <h2>76%</h2>
-                                    <p class="mb-0"><i class="bi bi-arrow-up"></i> 5% increase</p>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Add your stats card sections here -->
                     </div>
 
                     <!-- Recent Activities & Quick Actions -->
@@ -318,125 +220,10 @@ mysqli_free_result($previousMonthResult);
                                             <span>Bandwidth</span>
                                             <span>50%</span>
                                         </div>
-                                        <div class="progress">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: 50%"></div>
+                                        <div class="progress...">
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Users & Course Status -->
-                    <div class="row">
-                        <!-- Recent Users -->
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Recent Users</h5>
-                                    <a href="./Users/users.php" class="btn btn-sm btn-outline-primary">View All</a>
-                                </div>
-                                <?php
-                                // Include the database configuration file
-                                require_once 'config.php';
-
-                                // Fetch the 10 most recent users
-                                $query = "SELECT username, role FROM Users ORDER BY date_joined DESC LIMIT 10";
-                                $result = mysqli_query($conn, $query);
-
-                                // Check for query errors
-                                if (!$result) {
-                                    die("Database query failed: " . mysqli_error($conn));
-                                }
-                                ?>
-
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>User</th>
-                                                <th>Role</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            // Loop through the users and display them
-                                            while ($row = mysqli_fetch_assoc($result)) { ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($row['username']); ?></td>
-                                                    <td><?php echo ucfirst(htmlspecialchars($row['role'])); ?></td>
-                                                    <td>
-                                                        <i class="bi bi-pencil action-icon"></i>
-                                                        <i class="bi bi-trash action-icon text-danger"></i>
-                                                    </td>
-                                                </tr>
-                                            <?php } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <?php
-                                // Free result set and close the connection
-                                mysqli_free_result($result);
-                                // mysqli_close($conn);
-                                ?>
-
-                            </div>
-                        </div>
-
-                        <!-- Popular Courses -->
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Popular Courses</h5>
-                                    <button class="btn btn-sm btn-outline-primary">View All</button>
-                                </div>
-                                <?php
-                                // Include the database configuration file
-                                require_once 'config.php';
-
-                                // Fetch only popular courses
-                                $query = "SELECT title FROM Courses WHERE isPopular = 'yes'";
-                                $result = mysqli_query($conn, $query);
-
-                                // Check for query errors
-                                if (!$result) {
-                                    die("Database query failed: " . mysqli_error($conn));
-                                }
-                                ?>
-
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Course</th>
-                                                <th>Students</th>
-                                                <th>Rating</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            // Loop through the courses and display them
-                                            while ($row = mysqli_fetch_assoc($result)) { ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($row['title']); ?></td>
-                                                    <td>Dummy Students</td>
-                                                    <td>
-                                                        <i class="bi bi-star-fill text-warning"></i> Dummy Rating
-                                                    </td>
-                                                </tr>
-                                            <?php } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <?php
-                                // Free result set and close the connection
-                                mysqli_free_result($result);
-                                mysqli_close($conn);
-                                ?>
-
                             </div>
                         </div>
                     </div>
@@ -445,6 +232,7 @@ mysqli_free_result($previousMonthResult);
         </div>
     </div>
 
+    <!-- Include necessary JS files -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

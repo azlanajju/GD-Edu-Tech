@@ -116,7 +116,7 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                             <p class="text-muted">Manage and monitor platform users</p>
                         </div>
                         <div class="col-auto">
-                            <a href="add_user.php" class="btn btn-primary">
+                            <a href="insert_user.php" class="btn btn-primary">
                                 <i class="bi bi-plus-circle me-2"></i>Add New User
                             </a>
                         </div>

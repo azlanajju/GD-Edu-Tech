@@ -1,6 +1,6 @@
 <?php
 require_once 'config.php'; // Include database configuration
-require_once __DIR__ . '/vendor/autoload.php'; // Load Composer dependencies (including JWT)
+require_once __DIR__ . '/../vendor/autoload.php'; // Load Composer dependencies (including JWT)
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    // Check if the username exists
+    // Check if the username exists and is an admin
     $stmt = $conn->prepare("SELECT user_id, username, password_hash, role, status FROM Users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -26,8 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Check if the user is an admin
         if ($user['role'] === 'admin') {
-            echo "<div class='alert alert-danger text-center'>Invalid username or password.</div>";
-        } else {
             // Check user status
             if ($user['status'] !== 'active') {
                 echo "<div class='alert alert-warning text-center'>Your account is {$user['status']}. Please contact the administrator.</div>";
@@ -48,17 +46,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // Store JWT in a cookie
                 setcookie("auth_token", $jwt, time() + 3600, "/", "", false, true);
 
-                // Redirect based on user role (staff or student)
-                if ($user['role'] === 'staff') {
-                    header("Location: staff_dashboard.php");
-                    exit();
-                } else {
-                    header("Location: student_dashboard.php");
-                    exit();
-                }
+                // Create a session variable to track login state
+                $_SESSION['logged_in'] = true;
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['username'] = $user['username'];
+
+                // Redirect to admin dashboard
+                header("Location: index.php");
+                exit();
             } else {
                 echo "<div class='alert alert-danger text-center'>Invalid username or password.</div>";
             }
+        } else {
+            echo "<div class='alert alert-danger text-center'>Access restricted. Only admins can log in here.</div>";
         }
     } else {
         echo "<div class='alert alert-danger text-center'>Invalid username or password.</div>";
@@ -70,13 +70,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $conn->close();
 ?>
 
-<!-- HTML Login Form -->
+<!-- HTML Admin Login Form -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Admin Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -105,8 +105,8 @@ $conn->close();
 </head>
 <body>
 <div class="login-container">
-    <h2 class="login-title">Login</h2>
-    <form action="login.php" method="POST">
+    <h2 class="login-title">Admin Login</h2>
+    <form action="admin_login.php" method="POST">
         <div class="mb-3">
             <label for="username" class="form-label">Username</label>
             <input type="text" class="form-control" id="username" name="username" required>
@@ -116,9 +116,6 @@ $conn->close();
             <input type="password" class="form-control" id="password" name="password" required>
         </div>
         <button type="submit" class="btn btn-primary w-100">Login</button>
-        <div class="text-center mt-3">
-            <small>Don't have an account? <a href="signup.php">Sign up</a></small>
-        </div>
     </form>
 </div>
 

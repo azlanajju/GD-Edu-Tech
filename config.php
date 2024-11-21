@@ -22,4 +22,6 @@ if ($conn->connect_error) {
 // Define upload directory
 define('UPLOADS_DIR', __DIR__ . '/uploads/');
 
+
+
 ?>
