@@ -46,6 +46,55 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+    .course-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .course-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+    }
+    .course-thumbnail {
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    .course-card:hover .course-thumbnail {
+        transform: scale(1.05);
+    }
+    .course-card .card-body {
+        display: flex;
+        flex-direction: column;
+    }
+    .course-description {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 15px;
+        color: #6c757d;
+    }
+    .course-footer {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+    }
+    .badge-level {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+    }
+    .price-tag {
+        font-weight: bold;
+        color: #28a745;
+    }
+</style>
 </head>
 
 <body>
@@ -130,66 +179,84 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                         </div>
                     <?php endif; ?>
 
-                    <!-- Courses Table -->
-                    <div class="card shadow-sm">
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-    <thead class="bg-primary text-white">
-        <tr>
-            <th class="py-3 px-4 fw-bold">ID</th>
-            <th class="py-3 px-4 fw-bold">Title</th>
-            <th class="py-3 px-4 fw-bold">Category</th>
-            <th class="py-3 px-4 fw-bold">Price</th>
-            <th class="py-3 px-4 fw-bold">Level</th>
-            <th class="py-3 px-4 fw-bold">Status</th>
-            <th class="py-3 px-4 fw-bold">Created By</th>
-            <th class="py-3 px-4 fw-bold">Date Created</th>
-            <th class="py-3 px-4 fw-bold">Thumbnail</th>
-            <th class="py-3 px-4 fw-bold text-center">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php while ($course = mysqli_fetch_assoc($result)): ?>
-            <tr class="align-middle">
-                <td class="px-4"><?php echo htmlspecialchars($course['course_id']); ?></td>
-                <td class="px-4"><?php echo htmlspecialchars($course['title']); ?></td>
-                <td class="px-4"><?php echo htmlspecialchars($course['category_id']); ?></td>
-                <td class="px-4"><?php echo htmlspecialchars($course['price']); ?></td>
-                <td class="px-4"><?php echo htmlspecialchars($course['level']); ?></td>
-                <td class="px-4"><?php echo htmlspecialchars($course['status']); ?></td>
-                <td class="px-4"><?php echo htmlspecialchars($course['created_by']); ?></td>
-                <td class="px-4"><?php echo date('Y-m-d H:i', strtotime($course['date_created'])); ?></td>
-                <td class="px-4">
-                    <?php if ($course['thumbnail']): ?>
-                        <img src="./thumbnails/<?php echo htmlspecialchars($course['thumbnail']); ?>" alt="Course Thumbnail" style="max-width: 100px; max-height: 100px; object-fit: cover;">
-                    <?php else: ?>
-                        <span>No Thumbnail</span>
-                    <?php endif; ?>
-                </td>
-                <td class="px-4 text-center">
-                    <div class="btn-group" role="group">
-                        <a href="edit_course.php?id=<?php echo $course['course_id']; ?>"
-                            class="btn btn-sm btn-outline-primary rounded me-1"
-                            title="Edit Course">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a href="courses.php?delete=1&id=<?php echo $course['course_id']; ?>"
-                            class="btn btn-sm btn-outline-danger rounded"
-                            onclick="return confirm('Are you sure you want to delete this course?');"
-                            title="Delete Course">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </div>
-                </td>
-            </tr>
-        <?php endwhile; ?>
-    </tbody>
-</table>
+                    <!-- Courses  -->
+                    <div class="row row-cols-1 row-cols-md-3 g-4 p-3">
+    <?php while ($course = mysqli_fetch_assoc($result)): ?>
+        <div class="col">
+            <div class="card course-card h-100 <?php echo $course['status'] == 'draft' ? 'border-warning' : ''; ?>">
+                <!-- Thumbnail -->
+                <div class="position-relative">
+                    <img src="<?php echo $course['thumbnail'] ? "./thumbnails/".htmlspecialchars($course['thumbnail']) : '../images/default-course.png'; ?>" 
+                         class="card-img-top course-thumbnail" 
+                         alt="<?php echo htmlspecialchars($course['title']); ?>">
+                    
+                    <!-- Level Badge -->
+                    <span class="badge bg-primary badge-level">
+                        <?php echo htmlspecialchars($course['level']); ?>
+                    </span>
+                </div>
 
-                            </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <?php echo htmlspecialchars($course['title']); ?>
+                    </h5>
+
+                    <!-- Description -->
+                    <p class="course-description">
+                        <?php 
+                        $description = $course['description'] ?? 'No description available.';
+                        echo htmlspecialchars(substr($description, 0, 150) . (strlen($description) > 150 ? '...' : '')); 
+                        ?>
+                    </p>
+
+                    <!-- Course Details -->
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                        <span class="price-tag">
+                            <?php echo $course['price'] > 0 ? '$' . number_format($course['price'], 2) : 'Free'; ?>
+                        </span>
+                        <div class="btn-group" role="group">
+                            <!-- Publish Button -->
+                            <?php if ($course['status'] == 'draft'): ?>
+                                <a href="publish_course.php?id=<?php echo $course['course_id']; ?>"
+                                   class="btn btn-sm btn-success"
+                                   onclick="return confirm('Are you sure you want to publish this course?');"
+                                   title="Publish Course">
+                                    <i class="bi bi-send me-1"></i>Publish
+                                </a>
+                            <?php endif; ?>
+
+                            <a href="edit_course.php?id=<?php echo $course['course_id']; ?>"
+                               class="btn btn-sm btn-outline-primary"
+                               title="Edit Course">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="delete_course.php?id=<?php echo $course['course_id']; ?>"
+                            class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Are you sure you want to delete this course? This will also remove the course thumbnail.');"
+                            title="Delete Course">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </div>
                     </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer course-footer d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar me-1"></i>
+                        <?php echo date('M d, Y', strtotime($course['date_created'])); ?>
+                    </small>
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <?php echo $course['status'] == 'draft' ? 'Draft' : 'Published'; ?>
+                    </small>
+                </div>
+            </div>
+        </div>
+    <?php endwhile; ?>
+</div>
+
 
                     <!-- Pagination -->
                     <nav aria-label="Page navigation" class="mt-3">

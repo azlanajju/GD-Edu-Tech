@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($title && $description && $price >= 0 && $level && $category_id) {
         $created_by = $_SESSION['user_id']; // assuming user_id is stored in session
         $query = "INSERT INTO Courses (title, description, price, language, level, created_by, category_id, course_type, status, isPopular, thumbnail) 
-                  VALUES ('$title', '$description', '$price', '$language', '$level', '$created_by', '$category_id', '$course_type', 'published', '$isPopular', '$thumbnail')";
+                  VALUES ('$title', '$description', '$price', '$language', '$level', '$created_by', '$category_id', '$course_type', 'draft', '$isPopular', '$thumbnail')";
         
         if (mysqli_query($conn, $query)) {
             $_SESSION['message'] = "Course added successfully!";
