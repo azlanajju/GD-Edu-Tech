@@ -231,12 +231,19 @@ $admin_name = $_SESSION['first_name'] ?? 'Admin';
                                title="Edit Course">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <a href="delete_course.php?id=<?php echo $course['course_id']; ?>"
+                            <a href="?delete&id=<?php echo $course['course_id']; ?>" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Are you sure you want to delete this course? This will also remove the course thumbnail.');"
+                            title="Delete Course"><i class="bi bi-trash"></i></a>
+
+
+
+
+                            <!-- <a href="delete_course.php?id=<?php echo $course['course_id']; ?>"
                             class="btn btn-sm btn-outline-danger"
                             onclick="return confirm('Are you sure you want to delete this course? This will also remove the course thumbnail.');"
                             title="Delete Course">
                                 <i class="bi bi-trash"></i>
-                            </a>
+                            </a> -->
                         </div>
                     </div>
                 </div>
